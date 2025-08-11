@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import regex as re
 from ydb_query_metrics.query_filter import filter_queries
 
 
@@ -83,12 +84,10 @@ class TestQueryFilter:
 
     def test_filter_queries_invalid_regex(self, query_metrics_df):
         """Test filtering with invalid regex pattern."""
-        # This should not raise an exception but log a warning
-        filtered_df = filter_queries(query_metrics_df, [], [], ['[invalid regex'])
+        # This should raise an exception
+        with pytest.raises(re.PatternError):
+            filtered_df = filter_queries(query_metrics_df, [], [], ['[invalid regex'])
         
-        # Should return all rows as the regex is invalid
-        assert len(filtered_df) == len(query_metrics_df)
-
     def test_filter_queries_case_insensitive(self, query_metrics_df):
         """Test that filtering is case-insensitive."""
         # Filter for queries containing 'select' (lowercase)
