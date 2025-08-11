@@ -28,13 +28,14 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            'output',  # output_dir
+            None,  # output_dir (default value is now None)
             False,  # no_format
             False,  # one_file
             True,  # to_stdout (was to_files, now inverted)
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None  # output_file
+            None,  # output_file
+            False  # overwrite
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -57,13 +58,14 @@ class TestCli:
             ['table_alpha'],  # like_filters
             ['system'],  # not_like_filters
             ['SELECT.*FROM'],  # regex_filters
-            'output',  # output_dir
+            None,  # output_dir
             False,  # no_format
             False,  # one_file
             True,  # to_stdout
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None  # output_file
+            None,  # output_file
+            False  # overwrite
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -85,13 +87,14 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            'output',  # output_dir (default value)
+            None,  # output_dir (default value is now None)
             True,  # no_format
             True,  # one_file (derived from output being specified)
             True,  # to_stdout (actually "not to_stdout" in the CLI implementation)
             None,  # format_hint
             'MaxDuration',  # sort_by
-            'custom_output/all_queries.sql'  # output_file
+            'custom_output/all_queries.sql',  # output_file
+            False  # overwrite
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -112,13 +115,14 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            'output',  # output_dir
+            None,  # output_dir
             False,  # no_format
             False,  # one_file
             True,  # to_stdout
             'query_metrics',  # format_hint
             'MaxDuration',  # sort_by
-            None  # output_file
+            None,  # output_file
+            False  # overwrite
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -139,13 +143,14 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            'output',  # output_dir
+            None,  # output_dir
             False,  # no_format
             False,  # one_file
             True,  # to_stdout
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None  # output_file
+            None,  # output_file
+            False  # overwrite
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -206,13 +211,14 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            'output',  # output_dir
+            None,  # output_dir
             False,  # no_format
             False,  # one_file
             True,  # to_stdout
             None,  # format_hint
             'AvgCPUTime',  # sort_by
-            None  # output_file
+            None,  # output_file
+            False  # overwrite
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -238,11 +244,12 @@ class TestCli:
             ['table_alpha', 'SELECT'],  # like_filters
             ['system', 'temp'],  # not_like_filters
             ['SELECT.*FROM', 'WHERE.*='],  # regex_filters
-            'output',  # output_dir
+            None,  # output_dir
             False,  # no_format
             False,  # one_file
             True,  # to_stdout
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None  # output_file
+            None,  # output_file
+            False  # overwrite
         )

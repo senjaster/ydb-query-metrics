@@ -221,27 +221,44 @@ def print_queries_to_console(query_stats: Dict[str, QueryStatistics], no_format:
         click.echo(formatted_query)
 
 
-def write_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = '.', no_format: bool = False, one_file: bool = False, sort_by: str = 'MaxDuration') -> str:
+def write_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = None, no_format: bool = False, one_file: bool = False, sort_by: str = 'MaxDuration', overwrite: bool = False) -> str:
     """
     Write each query to a separate SQL file with statistics.
     
     Args:
         query_stats: Dictionary mapping query text to statistics
-        output_dir: Directory to write SQL files to
+        output_dir: Directory to write SQL files to. If None, uses 'output/TIMESTAMP'
         no_format: Whether to disable SQL formatting
         one_file: Whether to write all queries to a single file
         sort_by: Metric to sort queries by
         
     Returns:
-        The path to the timestamped output directory
+        The path to the output directory
     """
-    # Ensure base output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+    if output_dir is None:
+        # If output_dir is None, use the default with timestamp
+        base_dir = 'output'
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        target_dir = os.path.join(base_dir, timestamp)
+    else:
+        # Use the specified directory directly without timestamp
+        target_dir = output_dir
     
-    # Create a timestamped subfolder
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    timestamped_dir = os.path.join(output_dir, timestamp)
-    os.makedirs(timestamped_dir, exist_ok=True)
+    # Ensure the target directory exists
+    os.makedirs(target_dir, exist_ok=True)
+    
+    # Check if the directory already contains files
+    existing_files = os.listdir(target_dir)
+    if existing_files:
+        if overwrite:
+            # Remove existing files if overwrite is specified
+            for file_name in existing_files:
+                file_path = os.path.join(target_dir, file_name)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+        else:
+            # Raise an exception if there are files but no overwrite flag
+            raise ValueError(f"Directory '{target_dir}' already contains files. Use --overwrite to replace them.")
     
     # Sort queries by the specified metric (descending)
     sorted_queries = sorted(
@@ -252,7 +269,7 @@ def write_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = '
     
     if one_file:
         # Write all queries to a single file
-        file_path = os.path.join(timestamped_dir, "AllQueries.sql")
+        file_path = os.path.join(target_dir, "AllQueries.sql")
         with open(file_path, 'w') as f:
             for i, (query, stats) in enumerate(sorted_queries, 1):
                 # Add a separator between queries
@@ -264,10 +281,10 @@ def write_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = '
     else:
         # Write each query to a separate file
         for i, (query, stats) in enumerate(sorted_queries, 1):
-            file_path = os.path.join(timestamped_dir, f"Query{i:03d}.sql")
+            file_path = os.path.join(target_dir, f"Query{i:03d}.sql")
             
             with open(file_path, 'w') as f:
                 # Write query with statistics
                 write_query_with_stats(f, query, stats, None, no_format, sort_by)
     
-    return timestamped_dir
+    return target_dir

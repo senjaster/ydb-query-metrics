@@ -5,6 +5,7 @@ Query Processor Module for Query Metrics Processor
 Contains the main processing logic for handling query metrics files.
 """
 
+import os
 import click
 import pandas as pd
 from typing import List, Dict, Tuple
@@ -18,7 +19,7 @@ from ydb_query_metrics.query_statistics import calculate_statistics
 def process_files(file_paths: List[str], like_filters: List[str], not_like_filters: List[str],
                  regex_filters: List[str] = None, output_dir: str = None, no_format: bool = False,
                  one_file: bool = False, to_stdout: bool = False, format_hint: str = None,
-                 sort_by: str = 'MaxDuration', output_file: str = None) -> None:
+                 sort_by: str = 'MaxDuration', output_file: str = None, overwrite: bool = False) -> None:
     """
     Process multiple TSV files.
     
@@ -88,5 +89,5 @@ def process_files(file_paths: List[str], like_filters: List[str], not_like_filte
         click.echo(f"SQL queries written to {output_file}")
     else:
         # Write to files in output directory
-        actual_output_dir = write_sql_files(query_stats, output_dir, no_format, one_file, sort_by)
+        actual_output_dir = write_sql_files(query_stats, output_dir, no_format, one_file, sort_by, overwrite)
         click.echo(f"SQL files written to {actual_output_dir}/")

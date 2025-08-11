@@ -181,11 +181,14 @@ class TestWriteSqlFiles:
                 'strftime': datetime.strftime
             }))
             
-            # Write SQL files
-            output_dir = write_sql_files(query_statistics_sample, temp_dir, sort_by='MaxDuration')
+            # Create a unique output directory for this test
+            unique_output_dir = os.path.join('output', 'test_separate')
             
-            # Check that the output directory was created with the expected timestamp
-            expected_dir = os.path.join(temp_dir, "20250101_120000")
+            # Write SQL files with a specific output_dir
+            output_dir = write_sql_files(query_statistics_sample, unique_output_dir, sort_by='MaxDuration', overwrite=True)
+            
+            # Check that the output directory is the one we specified
+            expected_dir = unique_output_dir
             assert output_dir == expected_dir
             assert os.path.exists(expected_dir)
             
@@ -217,11 +220,14 @@ class TestWriteSqlFiles:
                 'strftime': datetime.strftime
             }))
             
-            # Write SQL files with one_file=True
-            output_dir = write_sql_files(query_statistics_sample, temp_dir, one_file=True, sort_by='MaxDuration')
+            # Create a unique output directory for this test
+            unique_output_dir = os.path.join('output', 'test_one_file')
             
-            # Check that the output directory was created
-            expected_dir = os.path.join(temp_dir, "20250101_120000")
+            # Write SQL files with one_file=True and a specific output_dir
+            output_dir = write_sql_files(query_statistics_sample, unique_output_dir, one_file=True, sort_by='MaxDuration', overwrite=True)
+            
+            # Check that the output directory is the one we specified
+            expected_dir = unique_output_dir
             assert output_dir == expected_dir
             assert os.path.exists(expected_dir)
             
@@ -239,6 +245,73 @@ class TestWriteSqlFiles:
                 # Check that the file contains separators between queries
                 separator_count = content.count("-- " + "=" * 120)
                 assert separator_count == len(query_statistics_sample) - 1  # One less separator than queries
+    
+    def test_write_sql_files_with_specified_output_dir(self, query_statistics_sample):
+        """Test writing queries to a specified output directory without timestamp."""
+        # Create a temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Write SQL files with specified output_dir
+            output_dir = write_sql_files(query_statistics_sample, temp_dir, sort_by='MaxDuration', overwrite=False)
+            
+            # Check that the output directory is exactly the one specified (no timestamp subfolder)
+            assert output_dir == temp_dir
+            
+            # Check that the correct number of files were created
+            files = os.listdir(temp_dir)
+            assert len(files) == len(query_statistics_sample)
+            
+            # Check that files are named correctly
+            for i in range(1, len(query_statistics_sample) + 1):
+                expected_file = f"Query{i:03d}.sql"
+                assert expected_file in files
+                
+                # Check file content
+                with open(os.path.join(temp_dir, expected_file), 'r') as f:
+                    content = f.read()
+                    assert "/*" in content
+                    assert "*/" in content
+                    assert "Row count:" in content
+                
+    def test_write_sql_files_with_overwrite(self, query_statistics_sample):
+        """Test writing queries to a directory with existing files and overwrite flag."""
+        # Create a temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create a dummy file in the directory
+            dummy_file = os.path.join(temp_dir, "dummy.txt")
+            with open(dummy_file, 'w') as f:
+                f.write("This is a dummy file")
+            
+            # Write SQL files with overwrite=True
+            output_dir = write_sql_files(query_statistics_sample, temp_dir, sort_by='MaxDuration', overwrite=True)
+            
+            # Check that the output directory is exactly the one specified
+            assert output_dir == temp_dir
+            
+            # Check that the dummy file was removed
+            assert not os.path.exists(dummy_file)
+            
+            # Check that the correct number of files were created
+            files = os.listdir(temp_dir)
+            assert len(files) == len(query_statistics_sample)
+    
+    def test_write_sql_files_without_overwrite(self, query_statistics_sample):
+        """Test writing queries to a directory with existing files without overwrite flag."""
+        # Create a temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create a dummy file in the directory
+            dummy_file = os.path.join(temp_dir, "dummy.txt")
+            with open(dummy_file, 'w') as f:
+                f.write("This is a dummy file")
+            
+            # Try to write SQL files without overwrite flag
+            with pytest.raises(ValueError) as excinfo:
+                write_sql_files(query_statistics_sample, temp_dir, sort_by='MaxDuration', overwrite=False)
+            
+            # Check that the error message is correct
+            assert "already contains files" in str(excinfo.value)
+            
+            # Check that the dummy file still exists
+            assert os.path.exists(dummy_file)
                 
     def test_sort_by_options(self, query_statistics_sample, monkeypatch, capsys):
         """Test different sort_by options."""

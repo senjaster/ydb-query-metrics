@@ -79,21 +79,28 @@ ydb-query-metrics input/example.tsv --like table_name --sort-by AvgCPUTime
 
 ### Вывод результатов
 
-По умолчанию запросы записываются в отдельные SQL-файлы в директории output/YYYYMMDD_hhmmss/.
+По умолчанию каждый запрос записывается в отдельный SQL-файл в директории output/YYYYMMDD_hhmmss/. Директория создается автоматически.
 
-Вывод всех запросов в один файл:
+Можно явно указать директорию, в которую нужно записывать файлы:
 ```bash
-ydb-query-metrics input/example.tsv --output all_queries.sql <параметры>
+ydb-query-metrics input/example.tsv --like my_table --output-dir my_table_queries 
 ```
 
-Вывод результатов в консоль:
+По умолчанию ydb-query-metrics не перезаписывает существующие файлы, поэтому если директория my_table_queries уже существует и в ней есть файлы, то будет выдана ошибка.
+Если файлы все же нужно перезаписать, укажите дополнительно флаг --overwite:
 ```bash
-ydb-query-metrics input/example.tsv --output - <параметры>
+ydb-query-metrics input/example.tsv --like my_table --output-dir my_table_queries --overwrite
+```
+Обратите внимание, что этот флаг удалит **все** файлы в папке my_table_queries, даже те, расширение которых не sql!
+
+Если это требуется, можно записать все запросы в один файл - для этого нужно использовать параметр --output:
+```bash
+ydb-query-metrics input/example.tsv --like my_table --output my_table_queries.sql 
 ```
 
-Указание директории для вывода:
+Кроме того, можно отправить запросы в stdout. Для этого вместо имени файла нужно указать дефис:
 ```bash
-ydb-query-metrics input/example.tsv --output-dir my_queries <параметры>
+ydb-query-metrics input/example.tsv --like my_table --output - 
 ```
 
 ### Дополнительные опции
@@ -111,7 +118,7 @@ ydb-query-metrics input/example.tsv --keep-query-format <параметры>
 1. **query_metrics** - данные, выгруженные из `.sys/query_metrics_one_minute`. Это предпочтительный формат файла, т.к. в нем больше данных.
 2. **top_queries** - данные, выгруженные из `.sys/top_queries_by_duration_one_minute` и аналогичных. Нужно учитывать, что данные, полученные из этого вью дадут неправильные средние и минимальные значения.
 
-Утилита автоматически определяет формат файла, но вы можете явно указать его с помощью параметра `--format`:
+Обычно формат файла определяется автоматически, но вы можете явно указать его с помощью параметра `--format`:
 
 ```bash
 ydb-query-metrics input/example.tsv --format query_metrics <параметры>
@@ -142,7 +149,7 @@ ydb-query-metrics input/example.tsv --format query_metrics <параметры>
 -- Query #1 (MaxDuration: 1.810002 seconds)
 
 /*
-Row count: 106
+Row count: 21
 Total count: 106.0
 
 Statistic       Min             Avg             Max            
@@ -150,12 +157,12 @@ Statistic       Min             Avg             Max
 Duration (s)    0.000013        0.017075        1.810002       
 CPUTime (s)     0.000012        0.000050        0.005298       
 ReadRows        159             383.37          684            
-ReadBytes       22036           56.49k          103920         
+ReadBytes       22.04k          56.49k          103.92k         
 UpdateRows      0               0               0              
 UpdateBytes     0               0               0              
 --------------- --------------- --------------- ---------------
-Rows/second     22.45                           
-Bytes/row       147.35                          
+Rows/second                     22.45                           
+Bytes/row                       147.35                          
 */
 
 DECLARE $param1 AS List<Text?>;

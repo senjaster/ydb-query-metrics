@@ -34,7 +34,8 @@ class TestQueryProcessor:
             to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None
+            output_file=None,
+            overwrite=False
         )
         
         # Check that the mocks were called with expected arguments
@@ -80,7 +81,8 @@ class TestQueryProcessor:
             to_stdout=False,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None
+            output_file=None,
+            overwrite=False
         )
         
         # Check that the mocks were called with expected arguments
@@ -97,7 +99,7 @@ class TestQueryProcessor:
         mock_calculate.assert_called_once()
         
         # Check write_sql_files was called with the right arguments
-        mock_write.assert_called_once_with(query_statistics_sample, 'output_dir', True, True, 'MaxDuration')
+        mock_write.assert_called_once_with(query_statistics_sample, 'output_dir', True, True, 'MaxDuration', False)
 
     @patch('ydb_query_metrics.query_processor.load_tsv_file')
     @patch('ydb_query_metrics.query_processor.filter_queries')
@@ -125,7 +127,8 @@ class TestQueryProcessor:
             to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None
+            output_file=None,
+            overwrite=False
         )
         
         # Check that load_tsv_file was called for each file
@@ -160,7 +163,8 @@ class TestQueryProcessor:
             to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None
+            output_file=None,
+            overwrite=False
         )
         
         # Check that the error message was printed
@@ -189,7 +193,8 @@ class TestQueryProcessor:
             to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None
+            output_file=None,
+            overwrite=False
         )
         
         # Check that the error message was printed
@@ -213,7 +218,8 @@ class TestQueryProcessor:
             to_stdout=True,
             format_hint='query_metrics',
             sort_by='MaxDuration',
-            output_file=None
+            output_file=None,
+            overwrite=False
         )
         
         # Check that load_tsv_file was called with the format hint
@@ -238,7 +244,8 @@ class TestQueryProcessor:
             to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None
+            output_file=None,
+            overwrite=False
         )
         
         # Check that the error message was printed
