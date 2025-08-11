@@ -6,29 +6,46 @@ YDB Query Metrics - это консольная утилита для обраб
 
 ## Установка
 
+### C использованием pipx
+Рекомендованный способ установки - использовать pipx:
+```bash
+pipx install git+https://github.com/senjaster/ydb-query-metrics
+```
+После выполнения этой команды ydb-query-metrics будет добавлена в PATH и ее можно будет запускать как обычное приложение.
+
+### Скачать репозиторий
+Если pipx нет, то нужно просто скачать репозиторий проекта:
 ```bash
 git clone https://github.com/senjaster/ydb-query-metrics
 cd ydb-query-metrics
 ./ydb-query-metrics.sh --help
 ```
-
-Скрипт автоматически создаст виртуальное окружение python и установит необходимые пакеты.
+При первом запуске будет автоматически создано виртуальное окружение python, в котором будет запускаться приложение.
+В дальнейшем вместо команды `ydb-query-metrics` нужно будет запускать скрипт `./ydb-query-metrics.sh` из той папки, куда было установлено приложение.
 
 ## Использование
 
 ### Базовое использование
 
 ```bash
-./ydb-query-metrics.sh --like "some_table" query_metrics_one_minute.tsv
+# При установке с помощью pipx
+ydb-query-metrics --like "some_table" --to-files query_metrics_one_minute.tsv 
 ```
-Данная команда прочитает файл query_metrics_one_minute.tsv и выведет в консоль все запросы, в тексте которых встречается some_table.
-Значение, указанное в like интерпретируется как строка, которую нужно найти, т.е. специальные символы * или % тут не поддерживаются.
+ или
+
+```bash
+# При установке с помощью копирования репозитория
+./ydb-query-metrics.sh --like "some_table" --to-files query_metrics_one_minute.tsv 
+```
+
+Данная команда прочитает файл query_metrics_one_minute.tsv, создаст папку output/YYYYMMDD_hhmmss/ и запишет в нее все запросы, в тексте которых встречается some_table.
+Каждый запрос будет записан в отдельный файл вида Query001.sql, причем запросы будут отсортированы по максимальной длительности - от самых медленных к самым быстрым.
+Значение, указанное параметре like интерпретируется как строка, которую нужно найти, т.е. специальные символы * или % здесь не поддерживаются.
 
 ### Обработка нескольких файлов
 
-
 ```bash
-./ydb-query-metrics.sh --like "some_table" query_metrics/*.tsv
+ydb-query-metrics <параметры> query_metrics/*.tsv
 ```
 
 Данная команда прочитает все файлы .tsv из папки query_metrics
@@ -38,7 +55,7 @@ cd ydb-query-metrics
 Поддерживается указание нескольких фильтров, при этом подразумевается AND между всеми условиями. 
 Это удобно использовать для исключения нежелательных запросов, например если нас не интересуют запросы, изменяющие данные, мы можем запустить следующую команду:
 ```bash
-./ydb-query-metrics.sh example.tsv --like some_table --not-like "UPSERT" --not-like "MERGE"
+ydb-query-metrics example.tsv --like some_table --not-like UPSERT --not-like MERGE
 ```
 Будут отобраны запросы, содержащие some_table и при этом не содержащие ни UPSERT, ни MERGE.
 
@@ -47,7 +64,7 @@ cd ydb-query-metrics
 Помимо простой фильтрации по наличию/отсутствию значения, можно использовать параметр regex для поиска по регулярному выражению.
 
 ```bash
-./ydb-query-metrics.sh examples/example.tsv --regex "FROM.*table_name"
+ydb-query-metrics examples/example.tsv --regex "FROM.*table_name"
 ```
 
 Будут выведены запросы, которые содержат table_name после FROM. Можно свободно комбинировать условия `--regex`, `--like` и `--not-like`.
@@ -57,32 +74,34 @@ cd ydb-query-metrics
 Запросы можно сортировать по максимальной или средней длительности и по максимальному или среднему потреблению CPU. Сортировка всегда идет по убыванию значения.
 
 ```bash
-./ydb-query-metrics.sh input/example.tsv --like table_name --sort-by AvgCPUTime
+ydb-query-metrics input/example.tsv --like table_name --sort-by AvgCPUTime
 ```
 
 ### Вывод в файлы
 
 Вывод результатов в отдельные SQL-файлы:
 ```bash
-./ydb-query-metrics.sh input/example.tsv --to-files
+ydb-query-metrics input/example.tsv --to-files <параметры>
 ```
 
 Вывод всех запросов в один файл:
 ```bash
-./ydb-query-metrics.sh input/example.tsv --to-files --one-file
+ydb-query-metrics input/example.tsv --to-files --one-file <параметры>
 ```
 
 Указание директории для вывода:
 ```bash
-./ydb-query-metrics.sh input/example.tsv --to-files --output-dir my_queries
+ydb-query-metrics input/example.tsv --to-files --output-dir my_queries <параметры>
 ```
+
+Если не указывать `--to-files` то запросы будут выведены прямо в консоль, а не в файлы.
 
 ### Дополнительные опции
 
 По умолчанию текст sql-запросов переформатируется для лучшей читаемости.
 Если это не требуется, нужно указать ключ `--keep-query-format`:
 ```bash
-./ydb-query-metrics.sh input/example.tsv --keep-query-format
+ydb-query-metrics input/example.tsv --keep-query-format <параметры>
 ```
 
 ## Поддерживаемые форматы файлов
@@ -95,7 +114,7 @@ cd ydb-query-metrics
 Утилита автоматически определяет формат файла, но вы можете явно указать его с помощью параметра `--format`:
 
 ```bash
-./ydb-query-metrics.sh input/example.tsv --format query_metrics
+ydb-query-metrics input/example.tsv --format query_metrics <параметры>
 ```
 
 Желательно, чтобы в TSV-файлах были заголовки - это позволит более надежно определить формат файла.
