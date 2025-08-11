@@ -255,7 +255,7 @@ def detect_and_load_file(file_path: str, encoding: str, file_format: str = None)
     # Determine file format
     if headers_present:
         # Read the file with headers
-        df = pd.read_csv(file_path, sep='\t', encoding=encoding)
+        df = pd.read_csv(file_path, sep='\t', encoding=encoding, low_memory=False)
     else:
         column_names = TOP_QUERIES_COLUMNS if file_format == 'top_queries' else QUERY_METRICS_COLUMNS
         df = pd.read_csv(file_path, sep='\t', header=None, names=column_names, encoding=encoding)
