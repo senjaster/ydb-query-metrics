@@ -14,15 +14,15 @@ from ydb_query_metrics.query_processor import process_files
 
 @click.command()
 @click.argument('files', nargs=-1, required=True, type=click.Path(exists=True))
-@click.option('--like', multiple=True, help='Filter queries containing this pattern (substring match, can be used multiple times, AND logic)')
-@click.option('--not-like', multiple=True, help='Filter queries NOT containing this pattern (substring match, can be used multiple times, AND logic)')
-@click.option('--regex', multiple=True, help='Filter queries matching this regular expression (can be used multiple times, AND logic)')
-@click.option('--output', default=None, help='Output file for all queries (use "-" for stdout)')
-@click.option('--output-dir', default=None, help='Directory to write SQL files to (when not using --output)')
-@click.option('--overwrite', is_flag=True, help='Overwrite existing files in output directory')
-@click.option('--keep-query-format', 'no_format', is_flag=True, help='Disable SQL query formatting')
-@click.option('--format', 'format_hint', type=click.Choice(['query_metrics', 'top_queries']), help='Specify the input file format')
-@click.option('--sort-by', type=click.Choice(['MaxDuration', 'AvgDuration', 'MaxCPUTime', 'AvgCPUTime']), default='MaxDuration', help='Sort queries by this metric (default: MaxDuration)')
+@click.option('-l', '--like', multiple=True, help='Filter queries containing this pattern (substring match, can be used multiple times, AND logic)')
+@click.option('-n', '--not-like', multiple=True, help='Filter queries NOT containing this pattern (substring match, can be used multiple times, AND logic)')
+@click.option('-r', '--regex', multiple=True, help='Filter queries matching this regular expression (can be used multiple times, AND logic)')
+@click.option('-o', '--output', default=None, help='Output file for all queries (use "-" for stdout)')
+@click.option('-d', '--output-dir', default=None, help='Directory to write SQL files to (when not using --output)')
+@click.option('-w', '--overwrite', is_flag=True, help='Overwrite existing files in output directory')
+@click.option('-k', '--keep-query-format', 'no_format', is_flag=True, help='Disable SQL query formatting')
+@click.option('-f', '--format', 'format_hint', type=click.Choice(['query_metrics', 'top_queries']), help='Specify the input file format')
+@click.option('-s', '--sort-by', type=click.Choice(['MaxDuration', 'AvgDuration', 'MaxCPUTime', 'AvgCPUTime']), default='MaxDuration', help='Sort queries by this metric (default: MaxDuration)')
 def main(files: Tuple[str], like: Tuple[str], not_like: Tuple[str], regex: Tuple[str], output: str, output_dir: str, overwrite: bool, no_format: bool, format_hint: str, sort_by: str) -> None:
     """
     Process TSV files containing SQL query execution statistics.

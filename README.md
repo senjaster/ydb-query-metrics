@@ -14,10 +14,13 @@ pipx install git+https://github.com/senjaster/ydb-query-metrics
 После выполнения этой команды ydb-query-metrics будет добавлена в PATH и ее можно будет запускать как обычное приложение.
 
 ### Скачать репозиторий
-Если pipx нет, то нужно просто скачать репозиторий проекта:
+Если pipx нет, то можно просто скачать репозиторий проекта:
 ```bash
 git clone https://github.com/senjaster/ydb-query-metrics
 cd ydb-query-metrics
+```
+И затем запустить в нем скрипт ./ydb-query-metrics.sh
+```bash
 ./ydb-query-metrics.sh --help
 ```
 При первом запуске будет автоматически создано виртуальное окружение python, в котором будет запускаться приложение.
@@ -55,9 +58,9 @@ ydb-query-metrics <параметры> query_metrics/*.tsv
 Поддерживается указание нескольких фильтров, при этом подразумевается AND между всеми условиями. 
 Это удобно использовать для исключения нежелательных запросов, например если нас не интересуют запросы, изменяющие данные, мы можем запустить следующую команду:
 ```bash
-ydb-query-metrics example.tsv --like some_table --not-like UPSERT --not-like MERGE
+ydb-query-metrics example.tsv --like some_table --like WHERE --not-like UPSERT --not-like MERGE
 ```
-Будут отобраны запросы, содержащие some_table и при этом не содержащие ни UPSERT, ни MERGE.
+Будут отобраны запросы, содержащие some_table и выражение WHERE, но не содержащие ни UPSERT, ни MERGE.
 
 ### Фильтрация по регулярному выражению
 
@@ -67,7 +70,9 @@ ydb-query-metrics example.tsv --like some_table --not-like UPSERT --not-like MER
 ydb-query-metrics examples/example.tsv --regex "FROM.*table_name"
 ```
 
-Будут выведены запросы, которые содержат table_name после FROM. Можно свободно комбинировать условия `--regex`, `--like` и `--not-like`.
+Будут выведены запросы, которые содержат table_name после FROM. 
+
+Можно свободно комбинировать условия `--regex`, `--like` и `--not-like`.
 
 ### Сортировка
 
