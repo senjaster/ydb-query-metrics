@@ -1,0 +1,25 @@
+[project]
+name = "ydb_query_metrics"
+version = "0.0.1"
+authors = [
+  { name="Arseny Birukov", email="senjaster@gmail.com" },
+]
+description = "Cli utiltity to analyze .sys/query_metrics_one_minute dumps"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+
+[project.scripts]
+ydb-query-metrics = "ydb_query_metrics.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/senjaster/ydb-query-metrics"
+Issues = "https://github.com/senjaster/ydb-query-metrics/issues"
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
