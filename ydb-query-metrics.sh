@@ -11,9 +11,7 @@ set -e  # Exit on error
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-SRC_DIR="$SCRIPT_DIR/src"
 VENV_DIR="$SCRIPT_DIR/venv"
-REQUIREMENTS_FILE="$SCRIPT_DIR/requirements.txt"
 
 # Check if virtual environment exists, create if it doesn't
 if [ ! -d "$VENV_DIR" ]; then
