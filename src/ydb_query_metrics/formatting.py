@@ -221,7 +221,7 @@ def print_queries_to_console(query_stats: Dict[str, QueryStatistics], no_format:
         click.echo(formatted_query)
 
 
-def write_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = None, no_format: bool = False, one_file: bool = False, sort_by: str = 'MaxDuration', overwrite: bool = False) -> str:
+def write_multiple_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = None, no_format: bool = False, sort_by: str = 'MaxDuration', overwrite: bool = False) -> str:
     """
     Write each query to a separate SQL file with statistics.
     
@@ -229,8 +229,8 @@ def write_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = N
         query_stats: Dictionary mapping query text to statistics
         output_dir: Directory to write SQL files to. If None, uses 'output/TIMESTAMP'
         no_format: Whether to disable SQL formatting
-        one_file: Whether to write all queries to a single file
         sort_by: Metric to sort queries by
+        overwrite: Whether to overwrite existing files in the output directory
         
     Returns:
         The path to the output directory
@@ -267,24 +267,51 @@ def write_sql_files(query_stats: Dict[str, QueryStatistics], output_dir: str = N
         reverse=True
     )
     
-    if one_file:
-        # Write all queries to a single file
-        file_path = os.path.join(target_dir, "AllQueries.sql")
+    # Write each query to a separate file
+    for i, (query, stats) in enumerate(sorted_queries, 1):
+        file_path = os.path.join(target_dir, f"Query{i:03d}.sql")
+        
         with open(file_path, 'w') as f:
-            for i, (query, stats) in enumerate(sorted_queries, 1):
-                # Add a separator between queries
-                if i > 1:
-                    f.write("\n\n-- " + "=" * 120 + "\n\n")
-                
-                # Write query with statistics
-                write_query_with_stats(f, query, stats, i, no_format, sort_by)
-    else:
-        # Write each query to a separate file
-        for i, (query, stats) in enumerate(sorted_queries, 1):
-            file_path = os.path.join(target_dir, f"Query{i:03d}.sql")
-            
-            with open(file_path, 'w') as f:
-                # Write query with statistics
-                write_query_with_stats(f, query, stats, None, no_format, sort_by)
+            # Write query with statistics
+            write_query_with_stats(f, query, stats, None, no_format, sort_by)
     
     return target_dir
+
+
+def write_single_sql_file(query_stats: Dict[str, QueryStatistics], output_file: str, no_format: bool = False, sort_by: str = 'MaxDuration') -> str:
+    """
+    Write all queries to a single SQL file with statistics.
+    
+    Args:
+        query_stats: Dictionary mapping query text to statistics
+        output_file: Path to the output file
+        no_format: Whether to disable SQL formatting
+        sort_by: Metric to sort queries by
+        
+    Returns:
+        The path to the output file
+    """
+    # Ensure the directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Sort queries by the specified metric (descending)
+    sorted_queries = sorted(
+        query_stats.items(),
+        key=lambda x: get_sort_key(x[1], sort_by),
+        reverse=True
+    )
+    
+    # Write all queries to the file
+    with open(output_file, 'w') as f:
+        for i, (query, stats) in enumerate(sorted_queries, 1):
+            # Add a separator between queries
+            if i > 1:
+                f.write("\n\n-- " + "=" * 120 + "\n\n")
+            
+            # Write query with statistics
+            write_query_with_stats(f, query, stats, i, no_format, sort_by)
+    
+    return os.path.dirname(output_file) if os.path.dirname(output_file) else '.'
+

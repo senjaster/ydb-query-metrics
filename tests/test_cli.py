@@ -4,6 +4,7 @@ import tempfile
 from unittest.mock import patch, MagicMock
 from click.testing import CliRunner
 from ydb_query_metrics.cli import main
+from ydb_query_metrics.query_processor import OutputMode
 
 
 class TestCli:
@@ -28,13 +29,11 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            None,  # output_dir (default value is now None)
+            OutputMode.MULTIPLE_FILES,  # output_mode
+            None,  # output_path
             False,  # no_format
-            False,  # one_file
-            True,  # to_stdout (was to_files, now inverted)
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None,  # output_file
             False  # overwrite
         )
 
@@ -58,13 +57,11 @@ class TestCli:
             ['table_alpha'],  # like_filters
             ['system'],  # not_like_filters
             ['SELECT.*FROM'],  # regex_filters
-            None,  # output_dir
+            OutputMode.MULTIPLE_FILES,  # output_mode
+            None,  # output_path
             False,  # no_format
-            False,  # one_file
-            True,  # to_stdout
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None,  # output_file
             False  # overwrite
         )
 
@@ -87,13 +84,11 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            None,  # output_dir (default value is now None)
+            OutputMode.SINGLE_FILE,  # output_mode
+            'custom_output/all_queries.sql',  # output_path
             True,  # no_format
-            True,  # one_file (derived from output being specified)
-            True,  # to_stdout (actually "not to_stdout" in the CLI implementation)
             None,  # format_hint
             'MaxDuration',  # sort_by
-            'custom_output/all_queries.sql',  # output_file
             False  # overwrite
         )
 
@@ -115,13 +110,11 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            None,  # output_dir
+            OutputMode.MULTIPLE_FILES,  # output_mode
+            None,  # output_path
             False,  # no_format
-            False,  # one_file
-            True,  # to_stdout
             'query_metrics',  # format_hint
             'MaxDuration',  # sort_by
-            None,  # output_file
             False  # overwrite
         )
 
@@ -143,13 +136,11 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            None,  # output_dir
+            OutputMode.MULTIPLE_FILES,  # output_mode
+            None,  # output_path
             False,  # no_format
-            False,  # one_file
-            True,  # to_stdout
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None,  # output_file
             False  # overwrite
         )
 
@@ -211,13 +202,11 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            None,  # output_dir
+            OutputMode.MULTIPLE_FILES,  # output_mode
+            None,  # output_path
             False,  # no_format
-            False,  # one_file
-            True,  # to_stdout
             None,  # format_hint
             'AvgCPUTime',  # sort_by
-            None,  # output_file
             False  # overwrite
         )
 
@@ -244,12 +233,10 @@ class TestCli:
             ['table_alpha', 'SELECT'],  # like_filters
             ['system', 'temp'],  # not_like_filters
             ['SELECT.*FROM', 'WHERE.*='],  # regex_filters
-            None,  # output_dir
+            OutputMode.MULTIPLE_FILES,  # output_mode
+            None,  # output_path
             False,  # no_format
-            False,  # one_file
-            True,  # to_stdout
             None,  # format_hint
             'MaxDuration',  # sort_by
-            None,  # output_file
             False  # overwrite
         )

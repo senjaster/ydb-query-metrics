@@ -2,7 +2,7 @@ import os
 import pytest
 import pandas as pd
 from unittest.mock import patch, MagicMock
-from ydb_query_metrics.query_processor import process_files
+from ydb_query_metrics.query_processor import process_files, OutputMode
 
 
 class TestQueryProcessor:
@@ -28,13 +28,11 @@ class TestQueryProcessor:
             like_filters=['table'],
             not_like_filters=['system'],
             regex_filters=None,
-            output_dir=None,
+            output_mode=OutputMode.STDOUT,
+            output_path=None,
             no_format=False,
-            one_file=False,
-            to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None,
             overwrite=False
         )
         
@@ -57,7 +55,7 @@ class TestQueryProcessor:
     @patch('ydb_query_metrics.query_processor.load_tsv_file')
     @patch('ydb_query_metrics.query_processor.filter_queries')
     @patch('ydb_query_metrics.query_processor.calculate_statistics')
-    @patch('ydb_query_metrics.query_processor.write_sql_files')
+    @patch('ydb_query_metrics.query_processor.write_multiple_sql_files')
     def test_process_files_file_output(
         self, mock_write, mock_calculate, mock_filter, mock_load, 
         query_metrics_df, query_statistics_sample
@@ -75,13 +73,11 @@ class TestQueryProcessor:
             like_filters=[],
             not_like_filters=[],
             regex_filters=None,
-            output_dir='output_dir',
+            output_mode=OutputMode.MULTIPLE_FILES,
+            output_path='output_dir',
             no_format=True,
-            one_file=True,
-            to_stdout=False,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None,
             overwrite=False
         )
         
@@ -98,8 +94,53 @@ class TestQueryProcessor:
         # Check calculate_statistics was called
         mock_calculate.assert_called_once()
         
-        # Check write_sql_files was called with the right arguments
-        mock_write.assert_called_once_with(query_statistics_sample, 'output_dir', True, True, 'MaxDuration', False)
+        # Check write_multiple_sql_files was called with the right arguments
+        mock_write.assert_called_once_with(query_statistics_sample, 'output_dir', True, 'MaxDuration', False)
+
+    @patch('ydb_query_metrics.query_processor.load_tsv_file')
+    @patch('ydb_query_metrics.query_processor.filter_queries')
+    @patch('ydb_query_metrics.query_processor.calculate_statistics')
+    @patch('ydb_query_metrics.query_processor.write_single_sql_file')
+    def test_process_files_single_file_output(
+        self, mock_write, mock_calculate, mock_filter, mock_load,
+        query_metrics_df, query_statistics_sample
+    ):
+        """Test processing files with single file output."""
+        # Setup mocks
+        mock_load.return_value = query_metrics_df
+        mock_filter.return_value = query_metrics_df
+        mock_calculate.return_value = query_statistics_sample
+        mock_write.return_value = '/tmp'
+        
+        # Call the function
+        process_files(
+            file_paths=['test_file.tsv'],
+            like_filters=[],
+            not_like_filters=[],
+            regex_filters=None,
+            output_mode=OutputMode.SINGLE_FILE,
+            output_path='output.sql',
+            no_format=True,
+            format_hint=None,
+            sort_by='MaxDuration',
+            overwrite=False
+        )
+        
+        # Check that the mocks were called with expected arguments
+        mock_load.assert_called_once_with('test_file.tsv', None)
+        
+        # Check filter arguments without direct DataFrame comparison
+        args, kwargs = mock_filter.call_args
+        assert len(args) == 4
+        assert args[1] == []
+        assert args[2] == []
+        assert args[3] is None
+        
+        # Check calculate_statistics was called
+        mock_calculate.assert_called_once()
+        
+        # Check write_single_sql_file was called with the right arguments
+        mock_write.assert_called_once_with(query_statistics_sample, 'output.sql', True, 'MaxDuration')
 
     @patch('ydb_query_metrics.query_processor.load_tsv_file')
     @patch('ydb_query_metrics.query_processor.filter_queries')
@@ -121,13 +162,11 @@ class TestQueryProcessor:
             like_filters=[],
             not_like_filters=[],
             regex_filters=None,
-            output_dir=None,
+            output_mode=OutputMode.STDOUT,
+            output_path=None,
             no_format=False,
-            one_file=False,
-            to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None,
             overwrite=False
         )
         
@@ -157,13 +196,11 @@ class TestQueryProcessor:
             like_filters=[],
             not_like_filters=[],
             regex_filters=None,
-            output_dir=None,
+            output_mode=OutputMode.STDOUT,
+            output_path=None,
             no_format=False,
-            one_file=False,
-            to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None,
             overwrite=False
         )
         
@@ -187,13 +224,11 @@ class TestQueryProcessor:
             like_filters=['nonexistent'],
             not_like_filters=[],
             regex_filters=None,
-            output_dir=None,
+            output_mode=OutputMode.STDOUT,
+            output_path=None,
             no_format=False,
-            one_file=False,
-            to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None,
             overwrite=False
         )
         
@@ -212,13 +247,11 @@ class TestQueryProcessor:
             like_filters=[],
             not_like_filters=[],
             regex_filters=None,
-            output_dir=None,
+            output_mode=OutputMode.STDOUT,
+            output_path=None,
             no_format=False,
-            one_file=False,
-            to_stdout=True,
             format_hint='query_metrics',
             sort_by='MaxDuration',
-            output_file=None,
             overwrite=False
         )
         
@@ -238,13 +271,11 @@ class TestQueryProcessor:
             like_filters=[],
             not_like_filters=[],
             regex_filters=None,
-            output_dir=None,
+            output_mode=OutputMode.STDOUT,
+            output_path=None,
             no_format=False,
-            one_file=False,
-            to_stdout=True,
             format_hint=None,
             sort_by='MaxDuration',
-            output_file=None,
             overwrite=False
         )
         
