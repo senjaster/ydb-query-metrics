@@ -31,9 +31,10 @@ class TestQueryProcessor:
             output_dir=None,
             no_format=False,
             one_file=False,
-            to_files=False,
+            to_stdout=True,
             format_hint=None,
-            sort_by='MaxDuration'
+            sort_by='MaxDuration',
+            output_file=None
         )
         
         # Check that the mocks were called with expected arguments
@@ -76,9 +77,10 @@ class TestQueryProcessor:
             output_dir='output_dir',
             no_format=True,
             one_file=True,
-            to_files=True,
+            to_stdout=False,
             format_hint=None,
-            sort_by='MaxDuration'
+            sort_by='MaxDuration',
+            output_file=None
         )
         
         # Check that the mocks were called with expected arguments
@@ -120,9 +122,10 @@ class TestQueryProcessor:
             output_dir=None,
             no_format=False,
             one_file=False,
-            to_files=False,
+            to_stdout=True,
             format_hint=None,
-            sort_by='MaxDuration'
+            sort_by='MaxDuration',
+            output_file=None
         )
         
         # Check that load_tsv_file was called for each file
@@ -154,9 +157,10 @@ class TestQueryProcessor:
             output_dir=None,
             no_format=False,
             one_file=False,
-            to_files=False,
+            to_stdout=True,
             format_hint=None,
-            sort_by='MaxDuration'
+            sort_by='MaxDuration',
+            output_file=None
         )
         
         # Check that the error message was printed
@@ -182,9 +186,10 @@ class TestQueryProcessor:
             output_dir=None,
             no_format=False,
             one_file=False,
-            to_files=False,
+            to_stdout=True,
             format_hint=None,
-            sort_by='MaxDuration'
+            sort_by='MaxDuration',
+            output_file=None
         )
         
         # Check that the error message was printed
@@ -205,9 +210,10 @@ class TestQueryProcessor:
             output_dir=None,
             no_format=False,
             one_file=False,
-            to_files=False,
+            to_stdout=True,
             format_hint='query_metrics',
-            sort_by='MaxDuration'
+            sort_by='MaxDuration',
+            output_file=None
         )
         
         # Check that load_tsv_file was called with the format hint
@@ -229,9 +235,10 @@ class TestQueryProcessor:
             output_dir=None,
             no_format=False,
             one_file=False,
-            to_files=False,
+            to_stdout=True,
             format_hint=None,
-            sort_by='MaxDuration'
+            sort_by='MaxDuration',
+            output_file=None
         )
         
         # Check that the error message was printed

@@ -17,13 +17,12 @@ from ydb_query_metrics.query_processor import process_files
 @click.option('--like', multiple=True, help='Filter queries containing this pattern (substring match, can be used multiple times, AND logic)')
 @click.option('--not-like', multiple=True, help='Filter queries NOT containing this pattern (substring match, can be used multiple times, AND logic)')
 @click.option('--regex', multiple=True, help='Filter queries matching this regular expression (can be used multiple times, AND logic)')
-@click.option('--to-files', is_flag=True, help='Write output to files instead of console')
-@click.option('--output-dir', default='output', help='Directory to write SQL files to (when using --to-files)')
+@click.option('--output', default=None, help='Output file for all queries (use "-" for stdout)')
+@click.option('--output-dir', default='output', help='Directory to write SQL files to (when not using --output)')
 @click.option('--keep-query-format', 'no_format', is_flag=True, help='Disable SQL query formatting')
-@click.option('--one-file', is_flag=True, help='Output all queries to a single file (when using --to-files)')
 @click.option('--format', 'format_hint', type=click.Choice(['query_metrics', 'top_queries']), help='Specify the input file format')
 @click.option('--sort-by', type=click.Choice(['MaxDuration', 'AvgDuration', 'MaxCPUTime', 'AvgCPUTime']), default='MaxDuration', help='Sort queries by this metric (default: MaxDuration)')
-def main(files: Tuple[str], like: Tuple[str], not_like: Tuple[str], regex: Tuple[str], to_files: bool, output_dir: str, no_format: bool, one_file: bool, format_hint: str, sort_by: str) -> None:
+def main(files: Tuple[str], like: Tuple[str], not_like: Tuple[str], regex: Tuple[str], output: str, output_dir: str, no_format: bool, format_hint: str, sort_by: str) -> None:
     """
     Process TSV files containing SQL query execution statistics.
     
@@ -41,7 +40,13 @@ def main(files: Tuple[str], like: Tuple[str], not_like: Tuple[str], regex: Tuple
         click.echo("Error: No files to process.", err=True)
         return
     
-    process_files(expanded_files, list(like), list(not_like), list(regex), output_dir, no_format, one_file, to_files, format_hint, sort_by)
+    # Determine if we should output to stdout
+    to_stdout = output == "-"
+    
+    # If output is specified (and not stdout), it means we want all queries in one file
+    one_file = output is not None and not to_stdout
+    
+    process_files(expanded_files, list(like), list(not_like), list(regex), output_dir, no_format, one_file, not to_stdout, format_hint, sort_by, output)
 
 
 if __name__ == '__main__':

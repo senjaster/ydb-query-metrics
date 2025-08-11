@@ -31,9 +31,10 @@ class TestCli:
             'output',  # output_dir
             False,  # no_format
             False,  # one_file
-            False,  # to_files
+            True,  # to_stdout (was to_files, now inverted)
             None,  # format_hint
-            'MaxDuration'  # sort_by
+            'MaxDuration',  # sort_by
+            None  # output_file
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -59,9 +60,10 @@ class TestCli:
             'output',  # output_dir
             False,  # no_format
             False,  # one_file
-            False,  # to_files
+            True,  # to_stdout
             None,  # format_hint
-            'MaxDuration'  # sort_by
+            'MaxDuration',  # sort_by
+            None  # output_file
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -70,10 +72,8 @@ class TestCli:
         # Run the CLI command with output options
         result = self.runner.invoke(main, [
             'tests/fixtures/query_metrics_sample.tsv',
-            '--to-files',
-            '--output-dir', 'custom_output',
-            '--keep-query-format',
-            '--one-file'
+            '--output', 'custom_output/all_queries.sql',
+            '--keep-query-format'
         ])
         
         # Check that the command executed successfully
@@ -85,12 +85,13 @@ class TestCli:
             [],  # like_filters
             [],  # not_like_filters
             [],  # regex_filters
-            'custom_output',  # output_dir
+            'output',  # output_dir (default value)
             True,  # no_format
-            True,  # one_file
-            True,  # to_files
+            True,  # one_file (derived from output being specified)
+            True,  # to_stdout (actually "not to_stdout" in the CLI implementation)
             None,  # format_hint
-            'MaxDuration'  # sort_by
+            'MaxDuration',  # sort_by
+            'custom_output/all_queries.sql'  # output_file
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -114,9 +115,10 @@ class TestCli:
             'output',  # output_dir
             False,  # no_format
             False,  # one_file
-            False,  # to_files
+            True,  # to_stdout
             'query_metrics',  # format_hint
-            'MaxDuration'  # sort_by
+            'MaxDuration',  # sort_by
+            None  # output_file
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -140,9 +142,10 @@ class TestCli:
             'output',  # output_dir
             False,  # no_format
             False,  # one_file
-            False,  # to_files
+            True,  # to_stdout
             None,  # format_hint
-            'MaxDuration'  # sort_by
+            'MaxDuration',  # sort_by
+            None  # output_file
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -206,9 +209,10 @@ class TestCli:
             'output',  # output_dir
             False,  # no_format
             False,  # one_file
-            False,  # to_files
+            True,  # to_stdout
             None,  # format_hint
-            'AvgCPUTime'  # sort_by
+            'AvgCPUTime',  # sort_by
+            None  # output_file
         )
 
     @patch('ydb_query_metrics.cli.process_files')
@@ -237,7 +241,8 @@ class TestCli:
             'output',  # output_dir
             False,  # no_format
             False,  # one_file
-            False,  # to_files
+            True,  # to_stdout
             None,  # format_hint
-            'MaxDuration'  # sort_by
+            'MaxDuration',  # sort_by
+            None  # output_file
         )

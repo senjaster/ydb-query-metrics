@@ -29,13 +29,13 @@ cd ydb-query-metrics
 
 ```bash
 # При установке с помощью pipx
-ydb-query-metrics --like "some_table" --to-files query_metrics_one_minute.tsv 
+ydb-query-metrics --like "some_table" query_metrics_one_minute.tsv
 ```
  или
 
 ```bash
 # При установке с помощью копирования репозитория
-./ydb-query-metrics.sh --like "some_table" --to-files query_metrics_one_minute.tsv 
+./ydb-query-metrics.sh --like "some_table" query_metrics_one_minute.tsv
 ```
 
 Данная команда прочитает файл query_metrics_one_minute.tsv, создаст папку output/YYYYMMDD_hhmmss/ и запишет в нее все запросы, в тексте которых встречается some_table.
@@ -77,24 +77,24 @@ ydb-query-metrics examples/example.tsv --regex "FROM.*table_name"
 ydb-query-metrics input/example.tsv --like table_name --sort-by AvgCPUTime
 ```
 
-### Вывод в файлы
+### Вывод результатов
 
-Вывод результатов в отдельные SQL-файлы:
-```bash
-ydb-query-metrics input/example.tsv --to-files <параметры>
-```
+По умолчанию запросы записываются в отдельные SQL-файлы в директории output/YYYYMMDD_hhmmss/.
 
 Вывод всех запросов в один файл:
 ```bash
-ydb-query-metrics input/example.tsv --to-files --one-file <параметры>
+ydb-query-metrics input/example.tsv --output all_queries.sql <параметры>
+```
+
+Вывод результатов в консоль:
+```bash
+ydb-query-metrics input/example.tsv --output - <параметры>
 ```
 
 Указание директории для вывода:
 ```bash
-ydb-query-metrics input/example.tsv --to-files --output-dir my_queries <параметры>
+ydb-query-metrics input/example.tsv --output-dir my_queries <параметры>
 ```
-
-Если не указывать `--to-files` то запросы будут выведены прямо в консоль, а не в файлы.
 
 ### Дополнительные опции
 
