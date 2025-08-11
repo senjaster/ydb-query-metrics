@@ -82,7 +82,7 @@ class QueryFilterBuilder:
             
         for pattern in patterns:
             self._filters.append(
-                lambda df, p=pattern: ~df[self.column].str.contains(p, case=False, regex=True)
+                lambda df, p=pattern: df[self.column].str.contains(p, case=False, regex=True)
             )
         return self
     
