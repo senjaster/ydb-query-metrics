@@ -6,37 +6,39 @@ YDB Query Metrics - это консольная утилита для обраб
 
 ## Установка
 
-### Требования
-
-- Python 3.6+
-- pandas >= 1.3.0
-- click >= 8.0.0
-- sqlparse >= 0.4.2
-
-### Установка из исходного кода
-
 ```bash
-git clone <url-репозитория>
+git clone https://github.com/senjaster/ydb-query-metrics
 cd ydb-query-metrics
-pip install -r requirements.txt
+./ydb-query-metrics.sh --help
 ```
+
+Скрипт автоматически создаст виртуальное окружение python и установит необходимые пакеты.
 
 ## Использование
 
 ### Базовое использование
 
 ```bash
-python -m src.ydb-query-metrics --like "some_table" <файлы-tsv>
+./ydb-query-metrics.sh --like "some_table" query_metrics_one_minute.tsv
 ```
-Данная команда выведет в консоль все запросы, в тексте которых встречается some_table.
+Данная команда прочитает файл query_metrics_one_minute.tsv и выведет в консоль все запросы, в тексте которых встречается some_table.
 Значение, указанное в like интерпретируется как строка, которую нужно найти, т.е. специальные символы * или % тут не поддерживаются.
+
+### Обработка нескольких файлов
+
+
+```bash
+./ydb-query-metrics.sh --like "some_table" query_metrics/*.tsv
+```
+
+Данная команда прочитает все файлы .tsv из папки query_metrics
 
 ### Сложная фильтрация запросов
 
 Поддерживается указание нескольких фильтров, при этом подразумевается AND между всеми условиями. 
-Это удобно использовать для исключения нежелательных запросов, например если нас не интекресуют запросы, изменяющие данные, мы можем запустить 
+Это удобно использовать для исключения нежелательных запросов, например если нас не интересуют запросы, изменяющие данные, мы можем запустить следующую команду:
 ```bash
-python -m src.ydb-query-metrics examples/example.tsv --like some_table --not-like "UPSERT" --not-like "MERGE"
+./ydb-query-metrics.sh example.tsv --like some_table --not-like "UPSERT" --not-like "MERGE"
 ```
 Будут отобраны запросы, содержащие some_table и при этом не содержащие ни UPSERT, ни MERGE.
 
@@ -45,39 +47,42 @@ python -m src.ydb-query-metrics examples/example.tsv --like some_table --not-lik
 Помимо простой фильтрации по наличию/отстутствию значения, можно использовать параметр regex для поиска по регулярному выражению.
 
 ```bash
-python -m src.ydb-query-metrics examples/example.tsv --regex "FROM.*table_name"
+./ydb-query-metrics.sh examples/example.tsv --regex "FROM.*table_name"
 ```
 
-Будут выведены запросы, которые содержат table_name после FROM.
-Можно свободно комбинировать --regex, --like и --not-like.
+Будут выведены запросы, которые содержат table_name после FROM. Можно свободно комбинировать условия `--regex`, `--like` и `--not-like`.
+
+### Сортировка
+
+Запросы можно сортировать по максимальной или средней длительности и по максимальному или среднему потреблению CPU. Сщртировка всегда идет по убыванию значения.
+
+```bash
+./ydb-query-metrics.sh input/example.tsv --like table_name --sort-by AvgCPUTime
+```
 
 ### Вывод в файлы
 
 Вывод результатов в отдельные SQL-файлы:
 ```bash
-python -m src.ydb-query-metrics examples/example.tsv --to-files
+./ydb-query-metrics.sh input/example.tsv --to-files
 ```
 
 Вывод всех запросов в один файл:
 ```bash
-python -m src.ydb-query-metrics examples/example.tsv --to-files --one-file
+./ydb-query-metrics.sh input/example.tsv --to-files --one-file
 ```
 
 Указание директории для вывода:
 ```bash
-python -m src.ydb-query-metrics examples/example.tsv --to-files --output-dir my_queries
+./ydb-query-metrics.sh input/example.tsv --to-files --output-dir my_queries
 ```
 
 ### Дополнительные опции
 
+По умолчанию текст sql-запросов переформатируется для лучшей читаемости.
 Отключение форматирования SQL:
 ```bash
-python -m src.ydb-query-metrics examples/example.tsv --no-format
-```
-
-Указание формата входного файла:
-```bash
-python -m src.ydb-query-metrics examples/example.tsv --format query_metrics
+./ydb-query-metrics.sh input/example.tsv --no-format
 ```
 
 ## Поддерживаемые форматы файлов
@@ -87,8 +92,13 @@ python -m src.ydb-query-metrics examples/example.tsv --format query_metrics
 1. **query_metrics** - данные, выгруженные из `.sys/query_metrics_one_minute`. Это предпочтительный формат файла, т.к. в нем больше данных
 2. **top_queries** - данные, выгруженные из `.sys/top_queries_by_duration_one_minute` и аналогичных. Нужно учитывать, что данные, полученные из этого вью дадут неправильные средние и минимальные значения.
 
-Утилита автоматически определяет формат файла, но вы можете явно указать его с помощью параметра `--format`.
-Желательно, чтобы в tsv файлах были заголовки - это позволит более надежно определить формат файла по нему.
+Утилита автоматически определяет формат файла, но вы можете явно указать его с помощью параметра `--format`:
+
+```bash
+./ydb-query-metrics.sh input/example.tsv --format query_metrics
+```
+
+Желательно, чтобы в tsv файлах были заголовки - это позволит более надежно определить формат файла.
 
 
 ## Вывод результатов
@@ -107,9 +117,8 @@ python -m src.ydb-query-metrics examples/example.tsv --format query_metrics
    - Строк в секунду
    - Средний размер строки в байтах
 
-## Примеры вывода
+## Пример выводимых данных
 
-При выводе в консоль:
 ```
 -- Query #1 (MaxDuration: 1.810002 seconds)
 
@@ -130,15 +139,10 @@ Rows/second     22.45
 Bytes/row       147.35                          
 */
 
-DECLARE $jp1 AS List<Text?>;
+DECLARE $param1 AS List<Text?>;
 SELECT
     b1_0.id,
     a1_0.id,
     a1_0.code,
     ...
 ```
-
-## Примечания
-
-- Утилита автоматически определяет кодировку входных файлов
-- Можно за раз обработать много файлов, указав имя со звездочкой
