@@ -1,8 +1,13 @@
 [project]
 name = "ydb_query_metrics"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Arseny Birukov", email="senjaster@gmail.com" },
+]
+dependencies = [
+  "pandas>=1.3.0",
+  "click>=8.0.0",
+  "sqlparse>=0.4.2"
 ]
 description = "Cli utiltity to analyze .sys/query_metrics_one_minute dumps"
 readme = "README.md"

@@ -23,10 +23,6 @@ if [ ! -d "$VENV_DIR" ]; then
     # Activate the virtual environment
     source "$VENV_DIR/bin/activate"
     
-    # Install dependencies
-    echo "Installing dependencies..."
-    pip install -r "$REQUIREMENTS_FILE"
-    
     echo "Virtual environment setup complete."
 else
     # Activate the virtual environment
