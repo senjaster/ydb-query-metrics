@@ -19,7 +19,7 @@ from ydb_query_metrics.query_processor import process_files
 @click.option('--regex', multiple=True, help='Filter queries matching this regular expression (can be used multiple times, AND logic)')
 @click.option('--to-files', is_flag=True, help='Write output to files instead of console')
 @click.option('--output-dir', default='output', help='Directory to write SQL files to (when using --to-files)')
-@click.option('--no-format', is_flag=True, help='Disable SQL query formatting')
+@click.option('--keep-query-format', 'no_format', is_flag=True, help='Disable SQL query formatting')
 @click.option('--one-file', is_flag=True, help='Output all queries to a single file (when using --to-files)')
 @click.option('--format', 'format_hint', type=click.Choice(['query_metrics', 'top_queries']), help='Specify the input file format')
 @click.option('--sort-by', type=click.Choice(['MaxDuration', 'AvgDuration', 'MaxCPUTime', 'AvgCPUTime']), default='MaxDuration', help='Sort queries by this metric (default: MaxDuration)')

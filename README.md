@@ -80,9 +80,9 @@ cd ydb-query-metrics
 ### Дополнительные опции
 
 По умолчанию текст sql-запросов переформатируется для лучшей читаемости.
-Если это не требуется, нужно указать ключ `--no-format`:
+Если это не требуется, нужно указать ключ `--keep-query-format`:
 ```bash
-./ydb-query-metrics.sh input/example.tsv --no-format
+./ydb-query-metrics.sh input/example.tsv --keep-query-format
 ```
 
 ## Поддерживаемые форматы файлов

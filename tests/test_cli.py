@@ -72,7 +72,7 @@ class TestCli:
             'tests/fixtures/query_metrics_sample.tsv',
             '--to-files',
             '--output-dir', 'custom_output',
-            '--no-format',
+            '--keep-query-format',
             '--one-file'
         ])
         
