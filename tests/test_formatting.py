@@ -182,8 +182,9 @@ class TestWriteSqlFiles:
                 'strftime': datetime.strftime
             }))
             
-            # Create a unique output directory for this test
-            unique_output_dir = os.path.join('output', 'test_separate')
+            # Create a unique output directory for this test inside the temp directory
+            unique_output_dir = os.path.join(temp_dir, 'test_separate')
+            os.makedirs(unique_output_dir, exist_ok=True)
             
             # Write SQL files with a specific output_dir
             output_dir = write_multiple_sql_files(query_statistics_sample, unique_output_dir, sort_by='MaxDuration', overwrite=True)
@@ -221,11 +222,10 @@ class TestWriteSqlFiles:
                 'strftime': datetime.strftime
             }))
             
-            # Create a unique file path for this test
-            unique_output_file = os.path.join('output', 'test_one_file', "AllQueries.sql")
-            
-            # Ensure the directory exists
-            os.makedirs(os.path.dirname(unique_output_file), exist_ok=True)
+            # Create a unique file path for this test inside the temp directory
+            test_dir = os.path.join(temp_dir, 'test_one_file')
+            os.makedirs(test_dir, exist_ok=True)
+            unique_output_file = os.path.join(test_dir, "AllQueries.sql")
             
             # Write SQL to a single file
             output_dir = write_single_sql_file(query_statistics_sample, unique_output_file, sort_by='MaxDuration', overwrite=True)
