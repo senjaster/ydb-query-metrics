@@ -140,7 +140,7 @@ class TestQueryProcessor:
         mock_calculate.assert_called_once()
         
         # Check write_single_sql_file was called with the right arguments
-        mock_write.assert_called_once_with(query_statistics_sample, 'output.sql', True, 'MaxDuration')
+        mock_write.assert_called_once_with(query_statistics_sample, 'output.sql', True, 'MaxDuration', False)
 
     @patch('ydb_query_metrics.query_processor.load_tsv_file')
     @patch('ydb_query_metrics.query_processor.filter_queries')

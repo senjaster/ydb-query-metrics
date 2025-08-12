@@ -278,7 +278,7 @@ def write_multiple_sql_files(query_stats: Dict[str, QueryStatistics], output_dir
     return target_dir
 
 
-def write_single_sql_file(query_stats: Dict[str, QueryStatistics], output_file: str, no_format: bool = False, sort_by: str = 'MaxDuration') -> str:
+def write_single_sql_file(query_stats: Dict[str, QueryStatistics], output_file: str, no_format: bool = False, sort_by: str = 'MaxDuration', overwrite: bool = False) -> str:
     """
     Write all queries to a single SQL file with statistics.
     
@@ -287,6 +287,7 @@ def write_single_sql_file(query_stats: Dict[str, QueryStatistics], output_file: 
         output_file: Path to the output file
         no_format: Whether to disable SQL formatting
         sort_by: Metric to sort queries by
+        overwrite: Whether to overwrite the file if it exists
         
     Returns:
         The path to the output file
@@ -295,6 +296,15 @@ def write_single_sql_file(query_stats: Dict[str, QueryStatistics], output_file: 
     output_dir = os.path.dirname(output_file)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
+    
+    # Check if the file already exists
+    if os.path.exists(output_file):
+        if overwrite:
+            # Remove the existing file if overwrite is specified
+            os.remove(output_file)
+        else:
+            # Raise an exception if the file exists but no overwrite flag
+            raise ValueError(f"File '{output_file}' already exists. Use --overwrite to replace it.")
     
     # Sort queries by the specified metric (descending)
     sorted_queries = sorted(

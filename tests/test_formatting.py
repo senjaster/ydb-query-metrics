@@ -228,7 +228,7 @@ class TestWriteSqlFiles:
             os.makedirs(os.path.dirname(unique_output_file), exist_ok=True)
             
             # Write SQL to a single file
-            output_dir = write_single_sql_file(query_statistics_sample, unique_output_file, sort_by='MaxDuration')
+            output_dir = write_single_sql_file(query_statistics_sample, unique_output_file, sort_by='MaxDuration', overwrite=True)
             
             # Check that the output directory is the one we specified
             expected_dir = os.path.dirname(unique_output_file)
@@ -246,6 +246,56 @@ class TestWriteSqlFiles:
                 # Check that the file contains separators between queries
                 separator_count = content.count("-- " + "=" * 120)
                 assert separator_count == len(query_statistics_sample) - 1  # One less separator than queries
+    
+    def test_write_single_sql_file_with_overwrite(self, query_statistics_sample):
+        """Test writing to a file with overwrite=True when the file already exists."""
+        # Create a temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create a unique file path for this test
+            output_file = os.path.join(temp_dir, "AllQueries.sql")
+            
+            # Create a dummy file at the output path
+            with open(output_file, 'w') as f:
+                f.write("This is a dummy file")
+            
+            # Write SQL to the file with overwrite=True
+            output_dir = write_single_sql_file(query_statistics_sample, output_file, sort_by='MaxDuration', overwrite=True)
+            
+            # Check that the output directory is correct
+            assert output_dir == temp_dir
+            
+            # Check that the file was created
+            assert os.path.exists(output_file)
+            
+            # Check file content to ensure it was overwritten
+            with open(output_file, 'r') as f:
+                content = f.read()
+                assert "This is a dummy file" not in content
+                assert "/*" in content
+                assert "*/" in content
+    
+    def test_write_single_sql_file_without_overwrite(self, query_statistics_sample):
+        """Test writing to a file with overwrite=False when the file already exists."""
+        # Create a temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create a unique file path for this test
+            output_file = os.path.join(temp_dir, "AllQueries.sql")
+            
+            # Create a dummy file at the output path
+            with open(output_file, 'w') as f:
+                f.write("This is a dummy file")
+            
+            # Try to write SQL to the file without overwrite flag
+            with pytest.raises(ValueError) as excinfo:
+                write_single_sql_file(query_statistics_sample, output_file, sort_by='MaxDuration', overwrite=False)
+            
+            # Check that the error message is correct
+            assert "already exists" in str(excinfo.value)
+            
+            # Check that the original file content is preserved
+            with open(output_file, 'r') as f:
+                content = f.read()
+                assert "This is a dummy file" in content
     
     def test_write_multiple_sql_files_with_specified_output_dir(self, query_statistics_sample):
         """Test writing queries to a specified output directory without timestamp."""

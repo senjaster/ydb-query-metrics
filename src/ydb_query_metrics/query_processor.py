@@ -77,7 +77,7 @@ def process_files(file_paths: List[str], like_filters: List[str], not_like_filte
     elif output_mode == OutputMode.SINGLE_FILE:
         # Write to a single file
         if output_path:
-            output_dir = write_single_sql_file(query_stats, output_path, no_format, sort_by)
+            output_dir = write_single_sql_file(query_stats, output_path, no_format, sort_by, overwrite)
             click.echo(f"SQL file written to {output_path}")
         else:
             # This should not happen due to CLI validation
